@@ -1,41 +1,51 @@
 #!/usr/bin/env ruby
 
+require 'pry'
 require 'optparse'
 require 'methadone'
-require 'git_ocd.rb'
+require 'listen'
+require 'git_ocd'
+
 
 class App
   include Methadone::Main
   include Methadone::CLILogging
 
-  main do # Add args you want: |like,so|
-    # your program code here
-    # You can access CLI options via
-    # the options Hash
+  main do |*repo_paths|
+
+    listeners = []
+    delay = options['delay'].to_i
+
+    repo_paths.each do |path|
+      listeners << Listen.to(path) do |modified, added, removed|
+        puts "modified absolute path: #{modified}"
+        # puts "added absolute path: #{added}"
+        # puts "removed absolute path: #{removed}"
+        git_command_result = `cd #{path} && git commit -a -m "updated on save" && git push`
+      end
+    end
+
+    listeners.map(&:start)
+
+    # we have to call trap after starting listeners, otherwise the listeners
+    # will intercept the trap
+    trap("SIGINT") { listeners.map(&:stop); exit }
+
+    # main loop
+    loop do
+      sleep 1
+    end
   end
 
-  # supplemental methods here
+  description "git-ocd watches a git repo and auto-commits / pushes when files change."
 
-  # Declare command-line interface here
+  version ::GitOcd::VERSION
 
-  # description "one line description of your app"
-  #
-  # Accept flags via:
-  # on("--flag VAL","Some flag")
-  # options[flag] will contain VAL
-  #
-  # Specify switches via:
-  # on("--[no-]switch","Some switch")
-  #
-  # Or, just call OptionParser methods on opts
-  #
-  # Require an argument
-  # arg :some_arg 
-  #
-  # # Make an argument optional
-  # arg :optional_arg, :optional
+  options['delay'] = 5
+  on("--delay DELAY", "maximum delay (in seconds) between acting on changes; default is 5 seconds")
+  on("--commit-message MESSAGE", "commit message")
 
-  version GitOcd::VERSION
+  arg :repo_paths, :many, "Path(s) to the git repository(ies) that you want to observe"
 
   use_log_level_option
 
