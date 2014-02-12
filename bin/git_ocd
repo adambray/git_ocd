@@ -3,7 +3,6 @@
 require 'pry'
 require 'optparse'
 require 'methadone'
-require 'listen'
 require 'git_ocd'
 
 
@@ -13,23 +12,18 @@ class App
 
   main do |*repo_paths|
 
-    listeners = []
-    delay = options['delay'].to_i
+    options['delay'] = options['delay'].to_i
+    observers = []
 
     repo_paths.each do |path|
-      listeners << Listen.to(path) do |modified, added, removed|
-        puts "modified absolute path: #{modified}"
-        # puts "added absolute path: #{added}"
-        # puts "removed absolute path: #{removed}"
-        git_command_result = `cd #{path} && git commit -a -m "updated on save" && git push`
-      end
+      observers << GitOcd::Observer.new(path, options)
     end
 
-    listeners.map(&:start)
+    observers.map(&:start)
 
-    # we have to call trap after starting listeners, otherwise the listeners
+    # we have to call trap after starting observers, otherwise the observers
     # will intercept the trap
-    trap("SIGINT") { listeners.map(&:stop); exit }
+    trap("SIGINT") { observers.map(&:stop); exit }
 
     # main loop
     loop do
