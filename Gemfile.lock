@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    git_ocd (0.1.1)
+    git_ocd (0.1.2)
       listen (~> 2.4.1)
       methadone (~> 1.3.1)
 

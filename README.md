@@ -1,24 +1,24 @@
 # GitOcd
 
-TODO: Write a gem description
+GitOCD watches a git repo for changes and automatically commits/pushes those changes.
+
+GitOCD is a terrible idea, well-executed. Have you every wanted your local repo to stay in sync with a remote repo, but you found the whole 'git add', 'git commit', 'git push' cycle was wearing you out? Simply run `git_ocd repo_path` and anytime you save a file in the repo, it'll automatically add, commit, and push the changes.
+
+**What could possibly go wrong?** :)
 
 ## Installation
 
-Add this line to your application's Gemfile:
+To install, just run:
 
-    gem 'git_ocd'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install git_ocd
+    gem install git_ocd
 
 ## Usage
 
-TODO: Write usage instructions here
+To use, just run:
+
+		$ git_ocd some_path
+
+To see options (such as delay timing), just run `git_ocd --help`.
 
 ## Contributing
 
